@@ -28,15 +28,6 @@
  * @c alignof, @c sizeof, and @c decltype — all part of the core language,
  * requiring no header.
  *
- * @par Customisable assertion hook
- * Define @c POOL_ASSERT(cond) before including this header to plug in
- * your own assertion or logging back-end.  By default the macro expands
- * to nothing (release-safe, zero overhead):
- * @code
- * #define POOL_ASSERT(cond) assert(cond)
- * #include "pool.hpp"
- * @endcode
- *
  * @par Thread safety
  * None.  Synchronise externally if multiple threads share a pool.
  *
@@ -48,10 +39,6 @@
  */
 
 #pragma once
-
-#ifndef POOL_ASSERT
-#  define POOL_ASSERT(cond) ((void)0)
-#endif
 
 // ---------------------------------------------------------------------------
 
@@ -282,15 +269,17 @@ public:
      * @param capacity  Maximum number of live objects the pool can hold.
      *
      * @pre  @ref resize must not have been called previously on this
-     *       pool instance.  A double call triggers @c POOL_ASSERT and
-     *       is otherwise undefined behaviour.
+     *       pool instance.  A double call triggers undefined behaviour.
      *
      * @note Passing @p capacity = 0 is valid; every subsequent
      *       @ref acquire will immediately return an empty proxy.
      */
     void resize(size_type capacity)
     {
-        POOL_ASSERT(!m_rawBuffer && "Pool::resize called more than once");
+        if (m_rawBuffer)
+        {
+            return ;
+        }
 
         m_capacity = capacity;
         m_freeTop  = capacity;
