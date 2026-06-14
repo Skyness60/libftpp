@@ -291,7 +291,6 @@ static void printFailure(const char* message) {
 
 int main() {
     bool globalFailure = false;
-
     std::cout
         << "=================================================="
         << std::endl;
